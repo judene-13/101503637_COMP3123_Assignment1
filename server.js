@@ -7,10 +7,13 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const logger = require('./utils/logger');
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
 
 app.use(helmet());
+app.use(logger);
 app.use(express.json());
 
 const apiLimiter = rateLimit({
@@ -34,6 +37,9 @@ app.get('/health', (req, res) => {
         message: 'Employee Management API is running'
     });
 });
+
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
