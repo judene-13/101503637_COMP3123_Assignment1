@@ -1,274 +1,380 @@
-
 # COMP3123 Assignment 1 - Employee Management REST API
 
-Student ID: 101503637
+**Student ID:** 101503637  
+**Course:** COMP3123 - Full Stack Development  
+**Project:** Employee Management REST API
 
-## Project Description
+## About My Project
 
-For this assignment, I created an Employee Management REST API using Node.js, Express, MongoDB, and Mongoose.
+For Assignment 1, I built an Employee Management REST API using Node.js, Express, and MongoDB.
 
-The API allows users to create an account, log in, and manage employee information. Each employee belongs to the user who created them, so users cannot access or change another user's employee records.
+The main purpose of my application is to allow users to register, log in, and manage employee information. Each user can add, view, update, and delete their own employees.
 
-The project also includes security features such as password hashing, JWT authentication, input validation, Helmet, and rate limiting.
+One of the important parts of this assignment was making sure users could not access employees belonging to another account. I used JWT authentication and MongoDB relationships to manage this.
 
-## Technologies Used
+I also added security features such as password hashing, input validation, Helmet, and rate limiting.
 
-- Node.js
-- Express.js
-- MongoDB Atlas
-- Mongoose
-- JavaScript
-- bcryptjs
-- JSON Web Token (JWT)
-- express-validator
-- Helmet
-- express-rate-limit
-- Morgan
-- Postman
-- Git and GitHub
+## Technologies I Used
+
+- **Node.js:** Runs my backend application.
+- **Express.js:** Handles the API routes and HTTP requests.
+- **MongoDB Atlas:** Stores my users and employees.
+- **Mongoose:** Helps me create schemas and work with MongoDB.
+- **bcryptjs:** Hashes user passwords before saving them.
+- **jsonwebtoken:** Generates and verifies JWT tokens.
+- **express-validator:** Checks incoming user and employee information.
+- **Helmet:** Adds security headers to HTTP responses.
+- **express-rate-limit:** Limits how many requests can be made within a certain time.
+- **Morgan:** Records HTTP request information.
+- **dotenv:** Loads configuration values from my `.env` file.
+- **Postman:** Used to test my API endpoints.
+- **Git and GitHub:** Used to track my changes and store my project.
 
 ## Project Structure
 
-- config - MongoDB connection
-- controllers - User and employee operations
-- middleware - Authentication and error handling
-- models - MongoDB User and Employee schemas
-- routes - API endpoints
-- utils - Application logging
-- logs - Locally generated request logs
-- server.js - Main application file
+I separated my code into different folders to make the application easier to understand and manage.
 
-## How to Run the Project
+```text
+101503637_COMP3123_Assignment1/
+│
+├── config/
+│   └── db.js
+│
+├── controllers/
+│   ├── userController.js
+│   └── employeeController.js
+│
+├── middleware/
+│   ├── authMiddleware.js
+│   └── errorMiddleware.js
+│
+├── models/
+│   ├── User.js
+│   └── Employee.js
+│
+├── routes/
+│   ├── userRoutes.js
+│   └── employeeRoutes.js
+│
+├── utils/
+│   └── logger.js
+│
+├── logs/
+│   └── app.log (generated locally)
+│
+├── .env.example
+├── .gitignore
+├── package.json
+├── package-lock.json
+├── README.md
+└── server.js
+```
+
+The `server.js` file starts the application, while the other files handle specific parts of the backend.
+
+The `.env` file and `node_modules` folder are not included in GitHub.
+
+## How to Set Up and Run My Project
 
 ### 1. Clone the Repository
 
+Open Git Bash or the VS Code terminal and run:
+
+```bash
 git clone https://github.com/judene-13/101503637_COMP3123_Assignment1.git
+```
 
-### 2. Open the Project
+Go inside the project folder:
 
+```bash
 cd 101503637_COMP3123_Assignment1
+```
 
-### 3. Install Dependencies
+### 2. Install Dependencies
 
+Run:
+
+```bash
 npm install
+```
 
-### 4. Configure Environment Variables
+This installs the packages listed in `package.json`.
 
-Create a .env file in the main project folder.
+### 3. Configure MongoDB
 
-The application requires:
+I used MongoDB Atlas instead of installing MongoDB Server locally.
 
+To use the application, create a MongoDB Atlas cluster, set up a database user, and allow your computer's IP address to connect.
+
+The database name must be:
+
+`comp3123_assignment1`
+
+### 4. Create the Environment File
+
+Create a `.env` file in the main project folder.
+
+Use `.env.example` as a guide:
+
+```env
 PORT=3000
 MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
+JWT_SECRET=your_random_jwt_secret
+```
 
-Use the .env.example file as a reference.
+Replace the example values with your own configuration.
 
-Do not upload the actual .env file to GitHub.
+I kept my actual MongoDB password and JWT secret out of GitHub because they are private information.
 
-### 5. Connect MongoDB
+### 5. Start the Application
 
-The application uses MongoDB Atlas.
+Run:
 
-Create a MongoDB Atlas cluster, configure a database user, and allow your computer's IP address to connect.
-
-The required database name is:
-
-comp3123_assignment1
-
-Add the MongoDB connection string to your .env file.
-
-### 6. Start the Server
-
+```bash
 npm start
+```
 
-The API runs at:
+The server should connect to MongoDB and start on port 3000.
 
-http://localhost:3000
+The API can then be accessed at:
+
+`http://localhost:3000`
 
 ## API Endpoints
 
+I created two main groups of endpoints: User and Employee.
+
 ### User Endpoints
 
-POST /api/v1/user/signup
+| Method | Endpoint | Description | Success |
+|---|---|---|---|
+| POST | `/api/v1/user/signup` | Creates a new user account | 201 |
+| POST | `/api/v1/user/login` | Logs in using a username or email | 200 |
 
-Registers a new user and returns 201 Created.
+For signup, the user provides a username, email, and password.
 
-POST /api/v1/user/login
-
-Allows users to log in using a username or email and password.
-
-A successful login returns 200 OK and a JWT.
+For login, the application checks the user's credentials and returns a JWT if they are correct.
 
 ### Employee Endpoints
 
-All employee endpoints require a valid JWT.
+| Method | Endpoint | Description | Success |
+|---|---|---|---|
+| GET | `/api/v1/emp/employees` | Gets the logged-in user's employees | 200 |
+| POST | `/api/v1/emp/employees` | Creates an employee | 201 |
+| GET | `/api/v1/emp/employees/:eid` | Gets an employee using their ID | 200 |
+| PUT | `/api/v1/emp/employees/:eid` | Updates an employee | 200 |
+| DELETE | `/api/v1/emp/employees?eid=xxx` | Deletes an employee | 204 |
 
-GET /api/v1/emp/employees
+All employee endpoints require a valid JWT token.
 
-Returns employees belonging to the logged-in user.
+For a successful DELETE request, the application returns `204 No Content`, so there is no JSON response body.
 
-POST /api/v1/emp/employees
+## How Authentication Works
 
-Creates an employee for the logged-in user.
+When a user signs up, the password is hashed using bcryptjs before being saved in MongoDB.
 
-GET /api/v1/emp/employees/:eid
+This means the database does not store the original password.
 
-Returns one employee belonging to the logged-in user.
+When logging in, the application compares the password entered by the user with the stored password hash.
 
-PUT /api/v1/emp/employees/:eid
+If they match, the server generates a JWT that expires after one hour.
 
-Updates an employee belonging to the logged-in user.
+The token must be sent with protected employee requests using the Authorization header:
 
-DELETE /api/v1/emp/employees?eid=xxx
-
-Deletes an employee belonging to the logged-in user.
-
-A successful deletion returns 204 No Content.
-
-## Authentication
-
-Users must register before logging in.
-
-Passwords are hashed using bcryptjs before they are stored in MongoDB.
-
-After logging in, the server generates a JWT that expires after one hour.
-
-To access employee endpoints, the client must send the token in the Authorization header:
-
+```text
 Authorization: Bearer YOUR_TOKEN
+```
 
-The server verifies the token before allowing access.
+I used Postman to test what happens when a token is missing, invalid, or expired.
 
-## Employee Ownership
+The API rejects requests that do not have valid authentication.
 
-Each employee has a user field containing the MongoDB ObjectId of the user who created them.
+## MongoDB Relationship and Employee Ownership
 
-When an employee is created, the API gets the user's ID from the verified JWT.
+This was one of the more important parts of my assignment.
 
-When retrieving, updating, or deleting employees, the database query checks both the employee ID and the authenticated user's ID.
+I created two Mongoose models, `User` and `Employee`.
 
-This prevents users from accessing employee records that do not belong to them.
+Each employee has a `user` field that stores the ObjectId of the user who created the employee.
 
-I tested this using two different accounts. Both users were prevented from accessing the other user's employees.
+When an employee is created, the application gets the user ID from the verified JWT instead of accepting an owner ID from the request body.
+
+For retrieving, updating, and deleting an employee, the application checks both the employee ID and the logged-in user's ID.
+
+This is important because knowing another employee's ID should not give someone permission to access that record.
+
+### How I Tested Ownership
+
+I created two test accounts:
+
+- **User A:** `testuser1`
+- **User B:** `employeeuserB`
+
+User A created Maya Williams, while User B created Daniel Brown.
+
+I tested whether User B could retrieve, update, or delete Maya's information. These requests returned `404 Employee not found`.
+
+I also tested User A trying to retrieve Daniel's information, which returned the same response.
+
+These tests helped me confirm that the employee ownership checks were working in both directions.
 
 ## Input Validation
 
-The API validates information submitted by users.
+I used `express-validator` to check the information being sent to the API.
 
-For signup, it checks the username, email, and password.
+For user registration, the application checks the username, email, and password.
 
-For employees, it checks names, email, position, salary, joining date, department, and employee IDs.
+For employees, it checks information such as:
 
-Invalid information returns 400 Bad Request with a JSON error message.
+- First and last name
+- Email address
+- Position
+- Salary
+- Date of joining
+- Department
+- Employee ID
 
-Duplicate usernames or emails return 409 Conflict.
+For example, an employee ID must be a valid MongoDB ObjectId.
 
-## Security
+Invalid information returns `400 Bad Request` with an error message.
+
+I also tested registering an account with an existing username or email, which returned `409 Conflict`.
+
+## Security Features
 
 ### Password Hashing
 
-User passwords are hashed using bcryptjs and are not returned in API responses.
+I used bcryptjs to hash passwords before saving them.
 
-### JWT
+The password hash is not returned in normal API responses.
 
-Employee routes are protected using JWT authentication.
+### JWT Authentication
 
-Missing, invalid, and expired tokens are rejected.
+I used JWT authentication to protect employee routes.
+
+A user must log in and provide a valid Bearer Token to access these endpoints.
 
 ### Helmet
 
-Helmet adds security-related HTTP headers to the application.
+I added Helmet to help secure the application by setting HTTP security headers.
+
+These headers provide additional browser-related protections.
 
 ### Rate Limiting
 
-Rate limiting controls how many requests a client can send within a certain amount of time.
+I added rate limiting to help prevent someone from sending too many requests in a short period.
 
-The general API limit is 100 requests per 15 minutes.
+The general API allows up to **100 requests every 15 minutes per IP address**.
 
-The signup and login endpoints share a stricter limit of 5 requests per 15 minutes.
+The signup and login endpoints have a stricter shared limit of **5 requests every 15 minutes per IP address**.
 
-If the limit is exceeded, the API returns:
-
-429 Too Many Requests
+If the limit is exceeded, the application returns `429 Too Many Requests`.
 
 ### Environment Variables
 
-Database credentials and JWT secrets are stored in the .env file.
+I used dotenv to keep configuration values outside my main JavaScript files.
 
-The .gitignore file prevents .env and node_modules from being uploaded to GitHub.
+My `.gitignore` excludes `.env`, `node_modules`, and generated logs.
 
-## Logging
+## Application Logging
 
-The application uses Morgan and the Node.js file system module to record HTTP requests locally.
+I used Morgan and Node.js file handling to save HTTP request information locally.
 
-Logs are stored in:
+The log file is created at:
 
-logs/app.log
+`logs/app.log`
 
-The logs include timestamps, request methods, request paths, and response status codes.
+The request logs include the date and time, HTTP method, request path, and response status.
 
-Passwords, JWT values, and database credentials are not intentionally written to the request logs.
+For example, the log can show when someone makes a GET request to `/health` or receives an error status.
 
-Generated logs are excluded from GitHub.
+The request logger does not intentionally record passwords, request bodies, JWT values, or database credentials.
+
+Generated log files are excluded from GitHub, but logging can be demonstrated by running requests through Postman and opening `logs/app.log`.
 
 ## Health Check
 
-GET /health
+I created a health-check endpoint to confirm the server is running.
 
-The health-check endpoint confirms that the API server is running.
+**Method:** GET
+
+**Endpoint:** `/health`
 
 Expected response:
 
+```json
 {
   "status": "OK",
   "message": "Employee Management API is running"
 }
+```
 
-## Error Handling
+This endpoint returns `200 OK` when the Express application is running.
 
-The API uses HTTP status codes to indicate the result of a request.
+## Error Handling and HTTP Status Codes
 
-- 200 - Successful request
-- 201 - Resource created
-- 204 - Resource deleted successfully
-- 400 - Invalid request
-- 401 - Missing or invalid authentication
-- 403 - Forbidden access when applicable
-- 404 - Resource or route not found
-- 409 - Duplicate username or email
-- 429 - Rate limit exceeded
-- 500 - Internal server error
+I added error handling so the application returns JSON messages when something goes wrong.
 
-Error responses use JSON messages.
+Some of the HTTP status codes used in my project are:
 
-## Testing
+| Status | Meaning |
+|---|---|
+| 200 | Request completed successfully |
+| 201 | User or employee created |
+| 204 | Employee deleted successfully |
+| 400 | Invalid request information |
+| 401 | Missing, invalid, or expired authentication |
+| 403 | Forbidden request, where applicable |
+| 404 | Employee or route not found |
+| 409 | Username or email already exists |
+| 429 | Too many requests |
+| 500 | Server error |
 
-I used Postman to test the API.
+For employee ownership checks, I return `404` when a record does not belong to the logged-in user. This avoids revealing another user's employee information.
 
-The tests include:
+## Testing With Postman
 
-- User signup and login
-- Duplicate registration
-- Invalid user information
+I used Postman throughout the assignment instead of waiting until the end to test everything.
+
+I tested the endpoints as I built them, which made it easier to see whether something was working before moving on.
+
+Some of the tests included:
+
+- Registering new users
+- Logging in using a username and password
+- Getting a JWT token
+- Rejecting duplicate registrations
 - Creating employees
-- Getting all employees
-- Getting one employee
-- Updating employees
-- Deleting employees
-- Missing and invalid JWT
-- Invalid employee ID
-- Invalid JSON
-- Unknown routes
-- Employee ownership using two different users
+- Viewing all employees
+- Getting an employee using their ID
+- Updating an employee's information
+- Deleting an employee and receiving `204 No Content`
+- Sending requests without a JWT
+- Testing invalid employee IDs
+- Testing malformed JSON
+- Testing unknown routes
+- Checking employee ownership using two different accounts
 
-The Postman collection is included with the assignment submission.
+One issue I ran into during testing was forgetting to add the Bearer Token to employee requests. Postman returned `401 Unauthorized`, which helped me understand why authentication is required before accessing the employee APIs.
 
-## GitHub
+I also learned that I needed to use the actual MongoDB employee ID instead of leaving a placeholder in the URL.
 
-I used Git throughout development to keep track of the changes made to the project.
+The exported Postman collection contains the saved API requests for testing.
 
-The repository includes the source code, project configuration, and documentation.
+## What I Learned
 
-GitHub Repository:
-https://github.com/judene-13/101503637_COMP3123_Assignment1
+This assignment helped me understand how the different parts of a backend application work together.
+
+Before this project, I had mostly worked with smaller Express exercises. This time I had to connect a database, create models, handle different API requests, and make sure user information was protected.
+
+The part that took the most attention was JWT authentication and employee ownership because I had to test the application using different accounts.
+
+I also got more practice using Git, MongoDB Atlas, VS Code, and Postman.
+
+Overall, the assignment helped me understand why backend development involves more than just creating endpoints. It also involves checking the information users send, controlling access, and handling errors properly.
+
+## GitHub Repository
+
+[COMP3123 Assignment 1 - Employee Management REST API](https://github.com/judene-13/101503637_COMP3123_Assignment1)
+
+The repository includes my source code, configuration examples, Git commit history, and project documentation.
